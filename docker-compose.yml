@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: ./backend
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+      - mcp-server
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  web:
+    build:
+      context: ./frontend
+    env_file:
+      - ./.env
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: langgraph_agent
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  mcp-server:
+    build:
+      context: ./mcp-server
+    ports:
+      - "9000:9000"
+
+volumes:
+  pg_data:

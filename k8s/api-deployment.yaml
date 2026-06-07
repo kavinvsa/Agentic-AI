@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langgraph-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: langgraph-api
+  template:
+    metadata:
+      labels:
+        app: langgraph-api
+    spec:
+      containers:
+        - name: api
+          image: your-registry/langgraph-api:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: langgraph-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: langgraph-api
+spec:
+  selector:
+    app: langgraph-api
+  ports:
+    - port: 8000
+      targetPort: 8000
